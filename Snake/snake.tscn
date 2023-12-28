@@ -1,0 +1,27 @@
+[gd_scene load_steps=5 format=3 uid="uid://cs6l8ica5kexv"]
+
+[ext_resource type="Script" path="res://Snake/snake.gd" id="1_jrwc4"]
+[ext_resource type="Script" path="res://Snake/CollisionDetector.gd" id="2_kp0fa"]
+
+[sub_resource type="Gradient" id="Gradient_ee6vx"]
+offsets = PackedFloat32Array(0, 0.509434, 1)
+colors = PackedColorArray(0, 0.89, 0.0889999, 1, 0, 0.916667, 1, 1, 0.444667, 0.32, 1, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_i5oqc"]
+gradient = SubResource("Gradient_ee6vx")
+
+[node name="Snake" type="Line2D"]
+position = Vector2(-17, -18)
+points = PackedVector2Array(631, 64, 35, 31, 284, 308, 18, 376)
+width = 100.0
+texture = SubResource("GradientTexture1D_i5oqc")
+texture_mode = 2
+joint_mode = 2
+antialiased = true
+script = ExtResource("1_jrwc4")
+
+[node name="Collider" type="Area2D" parent="."]
+script = ExtResource("2_kp0fa")
+
+[connection signal="update_head" from="." to="Collider" method="_on_snake_update_head"]
+[connection signal="update_tail" from="." to="Collider" method="_on_snake_update_tail"]
