@@ -9,8 +9,14 @@ func eat(nutrient:int) -> void:
 	score += nutrient
 	grow += nutrient
 	
-	#Need a formula for snake width.
-	#width += nutrient ???
+	#need a formula here
+	rpc("get_bigger", nutrient)
+	
+signal gain_weight(value:float)
+@rpc("reliable", "call_local")
+func get_bigger(value:float) -> void:
+	width = value
+	gain_weight.emit(value)
 
 var direction_head : Vector2
 var direction_tail : Vector2
@@ -38,15 +44,21 @@ func _ready() -> void:
 
 func _unhandled_key_input(_event) -> void:
 	var new_direction := Input.get_vector("ui_left", "ui_right", "ui_down", "ui_up")
-	
 	#You can't make a 360 degree turn.
 	if not (new_direction + direction_head).is_zero_approx():
 		direction_head = new_direction
 		# 1 point for every corner.
-		add_point(points[-1])
+		rpc("change_direction")
+		
+signal direction_changed(new_direction:Vector2)
+@rpc("call_local","reliable")
+func change_direction() -> void:
+	add_point(points[-1])
+	direction_changed.emit(direction_head)
 
 const speed_normal := 200.0
 const speed_dash := 500.0
+var delta_tail : Vector2
 func _physics_process(delta:float) -> void:
 	var speed := speed_normal
 	if Input.is_action_pressed("dash"):
@@ -62,21 +74,27 @@ func _physics_process(delta:float) -> void:
 	else:
 		points[0] += speed * direction_tail
 		#Remove tail point when overlap corner.
-		if (points[1] - points[0]).is_zero_approx():
-			remove_point(0)
+		delta_tail = points[1] - points[0]
+		if delta_tail.is_zero_approx():
 			direction_tail = (points[1] - points[0]).normalized()
+			rpc("remove_snake_corner")
 			
 	rpc("update_position", points[-1], points[0])
+	
+signal remove_corner
+@rpc("call_local","reliable")
+func remove_snake_corner() -> void:
+	remove_corner.emit()
+	remove_point(0)
 
 signal update_head(pos:Vector2)
-signal update_tail(pos:Vector2)
 @rpc("unreliable","call_local")
 func update_position(head:Vector2, tail:Vector2) -> void:
 	points[0] = tail
 	points[-1] = head
 	update_head.emit(head)
-	update_tail.emit(tail)
 
+@rpc("reliable","call_local")
 func die() -> void:
 	#Spawn food item smth.
 	pass

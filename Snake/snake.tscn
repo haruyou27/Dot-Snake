@@ -1,7 +1,8 @@
-[gd_scene load_steps=5 format=3 uid="uid://cs6l8ica5kexv"]
+[gd_scene load_steps=6 format=3 uid="uid://cs6l8ica5kexv"]
 
-[ext_resource type="Script" path="res://Snake/snake.gd" id="1_jrwc4"]
-[ext_resource type="Script" path="res://Snake/CollisionDetector.gd" id="2_kp0fa"]
+[ext_resource type="Script" path="res://Snake/Snake.gd" id="1_jrwc4"]
+[ext_resource type="Script" path="res://Snake/SnakeCollider.gd" id="2_kp0fa"]
+[ext_resource type="Script" path="res://Snake/Mouth.gd" id="3_yaphl"]
 
 [sub_resource type="Gradient" id="Gradient_ee6vx"]
 offsets = PackedFloat32Array(0, 0.509434, 1)
@@ -21,7 +22,17 @@ antialiased = true
 script = ExtResource("1_jrwc4")
 
 [node name="Collider" type="Area2D" parent="."]
+collision_mask = 0
+monitoring = false
 script = ExtResource("2_kp0fa")
 
+[node name="Mouth" type="RayCast2D" parent="Collider"]
+script = ExtResource("3_yaphl")
+
+[connection signal="direction_changed" from="." to="Collider" method="_on_snake_direction_changed"]
+[connection signal="direction_changed" from="." to="Collider/Mouth" method="_on_snake_direction_changed"]
+[connection signal="gain_weight" from="." to="Collider" method="_on_snake_gain_weight"]
+[connection signal="gain_weight" from="." to="Collider/Mouth" method="_on_snake_gain_weight"]
+[connection signal="remove_corner" from="." to="Collider" method="_on_snake_remove_corner"]
 [connection signal="update_head" from="." to="Collider" method="_on_snake_update_head"]
-[connection signal="update_tail" from="." to="Collider" method="_on_snake_update_tail"]
+[connection signal="update_head" from="." to="Collider/Mouth" method="_on_snake_update_head"]
